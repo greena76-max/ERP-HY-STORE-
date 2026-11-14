@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HY STORE OFFICIAL - Enterprise ERP System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        hyRed: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            500: '#ef4444',
+                            600: '#E50914',
+                            700: '#B80710',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                        },
+                        hyBlue: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#1D4ED8',
+                            700: '#1e40af',
+                            800: '#0F4C81',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for Sidebar & Tables */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 10px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        /* Smooth transitions */
+        .view-section {
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-[#F4F6F9] text-slate-800 font-sans antialiased overflow-x-hidden">
+
+    <!-- Toast Notification Container (Replaces alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Mobile Backdrop -->
+    <div id="mobile-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden backdrop-blur-xs"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- LEFT SIDEBAR (Vibrant Red Theme) -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-[#E50914] via-[#d00812] to-[#a8050d] text-white flex flex-col transition-all duration-300 shadow-2xl transform -translate-x-full lg:translate-x-0 shrink-0">
+            
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-white/15">
+                <span id="menu-label" class="text-xs font-bold tracking-widest uppercase text-white/80">MENU</span>
+                <button onclick="toggleSidebarWidth()" class="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white transition" title="Collapse Menu">
+                    <i id="collapse-icon" class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                <button onclick="toggleMobileSidebar()" class="lg:hidden flex items-center justify-center w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Sidebar Navigation Links -->
+            <nav class="flex-1 overflow-y-auto sidebar-scroll px-3 py-4 space-y-1">
+                
+                <!-- Top Items -->
+                <button onclick="switchView('overview')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-grip w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">App Launcher</span>
+                </button>
+
+                <button id="nav-overview" onclick="switchView('overview')" class="nav-item active-nav w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-semibold bg-[#1D4ED8] text-white shadow-md shadow-blue-950/30 transition">
+                    <i class="fa-solid fa-wave-square w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Overview</span>
+                </button>
+
+                <!-- SALES SECTION -->
+                <div class="pt-4 pb-1 px-3.5">
+                    <span class="sidebar-text text-[11px] font-bold tracking-wider uppercase text-white/70">SALES</span>
+                </div>
+
+                <button id="nav-quotation" onclick="switchView('calculator')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-file-signature w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Quotation</span>
+                </button>
+
+                <button id="nav-orders" onclick="switchView('orders')" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="fa-solid fa-cart-shopping w-5 text-center text-base"></i>
+                        <span class="sidebar-text truncate">Orders</span>
+                    </div>
+                    <span id="sidebar-orders-badge" class="sidebar-text bg-[#1D4ED8] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-xs">11</span>
+                </button>
+
+                <button onclick="showToast('Token Queue: Token #T-104 is currently at Printing Counter', 'info')" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="fa-solid fa-ticket w-5 text-center text-base"></i>
+                        <span class="sidebar-text truncate">Token</span>
+                    </div>
+                    <i class="sidebar-text fa-solid fa-chevron-down text-[10px] opacity-70"></i>
+                </button>
+
+                <button id="nav-invoices" onclick="switchView('invoices')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-file-invoice-dollar w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Invoices</span>
+                </button>
+
+                <button id="nav-customers" onclick="switchView('customers')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-users w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Customers</span>
+                </button>
+
+                <button onclick="switchView('customers')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-chart-simple w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">CRM</span>
+                </button>
+
+                <button onclick="openEditOrder(null)" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="fa-solid fa-cash-register w-5 text-center text-base"></i>
+                        <span class="sidebar-text truncate">POS</span>
+                    </div>
+                    <i class="sidebar-text fa-solid fa-chevron-down text-[10px] opacity-70"></i>
+                </button>
+
+                <!-- OPERATIONS SECTION -->
+                <div class="pt-4 pb-1 px-3.5">
+                    <span class="sidebar-text text-[11px] font-bold tracking-wider uppercase text-white/70">OPERATIONS</span>
+                </div>
+
+                <button onclick="showToast('22 Delivery & Design Acknowledgments pending verification', 'info')" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="fa-solid fa-clipboard-check w-5 text-center text-base"></i>
+                        <span class="sidebar-text truncate">Acknowledgments</span>
+                    </div>
+                    <span class="sidebar-text bg-[#1D4ED8] text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-xs">22</span>
+                </button>
+
+                <button onclick="switchView('warehouse')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-bag-shopping w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Purchases</span>
+                </button>
+
+                <button id="nav-warehouse" onclick="switchView('warehouse')" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="fa-solid fa-warehouse w-5 text-center text-base"></i>
+                        <span class="sidebar-text truncate">Warehouse</span>
+                    </div>
+                    <i class="sidebar-text fa-solid fa-chevron-down text-[10px] opacity-70"></i>
+                </button>
+
+                <button onclick="showToast('HR Module: 6 Staff Members Active Today', 'info')" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3 truncate">
+                        <i class="fa-solid fa-user-tie w-5 text-center text-base"></i>
+                        <span class="sidebar-text truncate">HR</span>
+                    </div>
+                    <i class="sidebar-text fa-solid fa-chevron-down text-[10px] opacity-70"></i>
+                </button>
+
+                <button id="nav-calculator" onclick="switchView('calculator')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-calculator w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Cost Calculator</span>
+                </button>
+
+                <button onclick="switchView('overview')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm font-medium text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-list-check w-5 text-center text-base"></i>
+                    <span class="sidebar-text truncate">Internal Tasks</span>
+                </button>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-white/15 text-xs text-white/80 flex items-center justify-between">
+                <span class="sidebar-text font-medium">HY STORE v2.6</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="System Online"></span>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            
+            <!-- TOP HEADER BAR -->
+            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between shrink-0 z-20">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <!-- Mobile Menu Toggle -->
+                    <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+
+                    <!-- Brand Logo -->
+                    <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchView('overview')">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E50914] to-[#0F4C81] flex items-center justify-center text-white font-extrabold text-base shadow-sm">
+                            HY
+                        </div>
+                        <div class="hidden sm:block">
+                            <div class="text-sm font-extrabold text-slate-900 leading-tight tracking-tight">HY STORE</div>
+                            <div class="text-[10px] font-medium text-slate-500">HY STORE OFFICIAL ERP</div>
+                        </div>
+                    </div>
+
+                    <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+
+                    <!-- Dynamic Page Title -->
+                    <h1 id="header-page-title" class="text-base sm:text-lg font-bold text-[#0F4C81]">Overview</h1>
+                </div>
+
+                <!-- Right Controls -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <!-- Quick Website Link -->
+                    <button onclick="showToast('Live Storefront Sync: All active catalog items are synced with HY STORE website!', 'success')" class="hidden md:flex items-center gap-1.5 text-xs font-semibold text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition">
+                        <i class="fa-solid fa-globe"></i>
+                        <span>Store Sync: ON</span>
+                    </button>
+
+                    <!-- Home Icon -->
+                    <button onclick="switchView('overview')" class="p-2 text-slate-500 hover:text-[#E50914] rounded-full hover:bg-slate-100 transition" title="Dashboard Home">
+                        <i class="fa-solid fa-house text-sm"></i>
+                    </button>
+
+                    <!-- Notification Bell -->
+                    <button onclick="showToast('You have 8 unread order & payment alerts.', 'info')" class="relative p-2 text-slate-500 hover:text-[#E50914] rounded-full hover:bg-slate-100 transition" title="Notifications">
+                        <i class="fa-regular fa-bell text-base"></i>
+                        <span class="absolute top-1 right-1 bg-[#E50914] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">8</span>
+                    </button>
+
+                    <!-- Admin Profile -->
+                    <div class="flex items-center gap-2.5 pl-2 border-l border-slate-200">
+                        <div class="w-8 h-8 rounded-full bg-[#E50914] text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                            MI
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <div class="text-xs font-bold text-slate-800 leading-tight">Muhammad Ibrahim</div>
+                            <div class="text-[10px] font-medium text-slate-500">Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE VIEWPORT -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+                <!-- ========================================================= -->
+                <!-- VIEW 1: OVERVIEW DASHBOARD (Matching Image 7)             -->
+                <!-- ========================================================= -->
+                <section id="view-overview" class="view-section space-y-6">
+                    
+                    <!-- Royal Blue Hero Banner -->
+                    <div class="bg-gradient-to-r from-[#1D4ED8] via-[#1545b5] to-[#0F4C81] rounded-2xl p-5 sm:p-7 text-white shadow-lg shadow-blue-900/15">
+                        
+                        <!-- Top Row: Greeting & Search/Date Filters -->
+                        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-200 mb-1">
+                                    <i class="fa-solid fa-sparkles text-red-400"></i>
+                                    <span>BUSINESS OVERVIEW</span>
+                                </div>
+                                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Good morning, Muhammad Ibrahim</h2>
+                                <p id="current-date-display" class="text-xs sm:text-sm text-blue-100 mt-1">Saturday, 14 November 2026</p>
+                            </div>
+
+                            <!-- Search & Date Filter Box -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                                <div class="relative flex-1 sm:w-64">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="global-search-input" onkeyup="handleGlobalSearch(event)" placeholder="Find order / tracking / customer" class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white text-slate-800 text-xs font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#E50914]">
+                                </div>
+                                <div class="flex items-center gap-2 bg-white/10 backdrop-blur-xs p-1.5 rounded-xl border border-white/15">
+                                    <div class="px-2">
+                                        <span class="block text-[9px] uppercase text-blue-200 font-bold">FROM</span>
+                                        <input type="date" class="bg-transparent text-white text-xs focus:outline-none [color-scheme:dark]">
+                                    </div>
+                                    <div class="h-6 w-px bg-white/20"></div>
+                                    <div class="px-2">
+                                        <span class="block text-[9px] uppercase text-blue-200 font-bold">TO</span>
+                                        <input type="date" class="bg-transparent text-white text-xs focus:outline-none [color-scheme:dark]">
+                                    </div>
+                                    <button onclick="showToast('Dashboard metrics filtered for selected date range!', 'success')" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                                        <i class="fa-regular fa-calendar-check"></i>
+                                        <span>Apply</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Translucent KPI Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Revenue -->
+                            <div class="bg-white/10 hover:bg-white/15 transition backdrop-blur-xs border border-white/15 rounded-xl p-4">
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">REVENUE</div>
+                                <div id="kpi-revenue" class="text-xl sm:text-2xl font-extrabold mt-1">Rs 697,977.97</div>
+                                <div class="text-xs text-emerald-300 font-medium mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-check text-[10px]"></i> 100% collected
+                                </div>
+                            </div>
+
+                            <!-- Receivables -->
+                            <div class="bg-white/10 hover:bg-white/15 transition backdrop-blur-xs border border-white/15 rounded-xl p-4 cursor-pointer" onclick="switchView('invoices')">
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">RECEIVABLES</div>
+                                <div id="kpi-receivables" class="text-xl sm:text-2xl font-extrabold mt-1">Rs 93,450.00</div>
+                                <div class="text-xs text-blue-200 mt-1">Customer balances</div>
+                            </div>
+
+                            <!-- Net Position -->
+                            <div class="bg-white/10 hover:bg-white/15 transition backdrop-blur-xs border border-white/15 rounded-xl p-4">
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">NET POSITION</div>
+                                <div class="text-xl sm:text-2xl font-extrabold mt-1">Rs 693,766.17</div>
+                                <div class="text-xs text-blue-200 mt-1">Cash In - Cash Out (Payments)</div>
+                            </div>
+
+                            <!-- Open Orders -->
+                            <div class="bg-white/10 hover:bg-white/15 transition backdrop-blur-xs border border-white/15 rounded-xl p-4 cursor-pointer" onclick="switchView('orders')">
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-blue-200">OPEN ORDERS</div>
+                                <div id="kpi-open-orders" class="text-xl sm:text-2xl font-extrabold mt-1">9</div>
+                                <div class="text-xs text-blue-200 mt-1">98% fulfilled</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Internal Tasks Strip -->
+                    <div class="bg-white rounded-xl px-5 py-3.5 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
+                            <span class="font-bold text-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-[#E50914]"></i> Internal tasks
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold text-xs">1 pending</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1D4ED8] font-semibold text-xs">2 in progress</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-red-50 text-[#E50914] font-semibold text-xs">1 overdue</span>
+                        </div>
+                        <button onclick="showToast('Task Assigned: Complete Magic Mug sublimation batch before 5 PM.', 'info')" class="text-xs font-semibold text-[#1D4ED8] hover:underline">+ Add Task</button>
+                    </div>
+
+                    <!-- QUICK ACTIONS ROW -->
+                    <div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">QUICK ACTIONS</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                            
+                            <button onclick="openEditOrder(null)" class="bg-white hover:bg-red-50/50 border border-slate-200 hover:border-[#E50914] rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-[#E50914] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-plus"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">New Order</span>
+                            </button>
+
+                            <button onclick="showToast('New Walk-in Token #T-105 Generated!', 'success')" class="bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-[#1D4ED8] rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-[#1D4ED8] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-ticket"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">Token</span>
+                            </button>
+
+                            <button onclick="openEditOrder(null)" class="bg-white hover:bg-emerald-50/50 border border-slate-200 hover:border-emerald-500 rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-store"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">POS Sale</span>
+                            </button>
+
+                            <button onclick="switchView('calculator')" class="bg-white hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-500 rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-file-lines"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">Quotation</span>
+                            </button>
+
+                            <button onclick="switchView('invoices')" class="bg-white hover:bg-amber-50/50 border border-slate-200 hover:border-amber-500 rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">Invoice</span>
+                            </button>
+
+                            <button onclick="switchView('customers')" class="bg-white hover:bg-slate-100 border border-slate-200 hover:border-slate-400 rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-slate-700 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">Customer</span>
+                            </button>
+
+                            <button onclick="switchView('calculator')" class="bg-white hover:bg-cyan-50/50 border border-slate-200 hover:border-cyan-500 rounded-xl p-3.5 flex items-center gap-3 shadow-xs transition group">
+                                <div class="w-9 h-9 rounded-lg bg-cyan-600 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                                    <i class="fa-solid fa-calculator"></i>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700">Cost Calc</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUMMARY METRIC CARDS ROW -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase text-slate-400">QUOTATIONS</div>
+                                <div class="text-2xl font-extrabold text-[#0F4C81] mt-1">3</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                <i class="fa-solid fa-file-contract"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="switchView('orders')" class="cursor-pointer bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-[#1D4ED8] transition">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase text-slate-400">ORDERS</div>
+                                <div id="summary-orders-count" class="text-2xl font-extrabold text-[#0F4C81] mt-1">438</div>
+                                <div class="text-[11px] text-slate-400">9 in pipeline</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-red-50 text-[#E50914] flex items-center justify-center">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="switchView('invoices')" class="cursor-pointer bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-[#1D4ED8] transition">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase text-slate-400">INVOICES</div>
+                                <div class="text-2xl font-extrabold text-[#0F4C81] mt-1">178</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#1D4ED8] flex items-center justify-center">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="switchView('customers')" class="cursor-pointer bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:border-[#1D4ED8] transition">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase text-slate-400">CUSTOMERS</div>
+                                <div class="text-2xl font-extrabold text-[#0F4C81] mt-1">179</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORDER PIPELINE & NEEDS ATTENTION -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Order Pipeline -->
+                        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800">Order pipeline</h3>
+                                    <p class="text-xs text-slate-400">Where work sits right now</p>
+                                </div>
+                                <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live
+                                </span>
+                            </div>
+                            <div id="dashboard-pipeline-list" class="space-y-3">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Needs Attention -->
+                        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800">Needs attention</h3>
+                                    <p class="text-xs text-slate-400">Ready or unpaid balances</p>
+                                </div>
+                                <button onclick="switchView('invoices')" class="text-xs font-bold text-[#E50914] hover:underline">View All</button>
+                            </div>
+                            <div id="dashboard-attention-list" class="space-y-3">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================================= -->
+                <!-- VIEW 2: ORDERS LIST & EDIT ORDER FORM (Images 2 & 5)      -->
+                <!-- ========================================================= -->
+                <section id="view-orders" class="view-section hidden space-y-6">
+                    
+                    <!-- Sub-View A: Orders List -->
+                    <div id="orders-list-container" class="space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div>
+                                <h2 class="text-lg font-extrabold text-[#0F4C81]">Orders Management</h2>
+                                <p class="text-xs text-slate-500">Manage customized gift orders, printing jobs, designers & delivery status</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <select id="order-status-filter" onchange="renderOrdersList()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#1D4ED8]">
+                                    <option value="ALL">All Statuses</option>
+                                    <option value="Order Received">Order Received</option>
+                                    <option value="Designing">Designing</option>
+                                    <option value="Printing">Printing</option>
+                                    <option value="Ready">Ready</option>
+                                </select>
+                                <button onclick="openEditOrder(null)" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>New Order</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Orders Cards Grid -->
+                        <div id="orders-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Sub-View B: Edit / Create Order Screen (Matching Images 2 & 5) -->
+                    <div id="order-editor-container" class="hidden max-w-5xl mx-auto">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <!-- Top Red Accent Strip -->
+                            <div class="h-1.5 bg-gradient-to-r from-[#E50914] to-[#1D4ED8]"></div>
+                            
+                            <div class="p-5 sm:p-7 space-y-6">
+                                <!-- Editor Header -->
+                                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                                    <div class="flex items-center gap-4">
+                                        <button onclick="closeEditOrder()" class="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#E50914] bg-slate-100 hover:bg-red-50 px-3 py-2 rounded-lg transition">
+                                            <i class="fa-solid fa-arrow-left"></i>
+                                            <span>Back</span>
+                                        </button>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <i class="fa-regular fa-clipboard text-[#E50914]"></i>
+                                                <h2 id="editor-title" class="text-lg font-extrabold text-[#0F4C81]">Edit Order</h2>
+                                            </div>
+                                            <p id="editor-order-id" class="text-xs font-semibold text-slate-400">ORD-0322</p>
+                                        </div>
+                                    </div>
+
+                                    <button onclick="saveOrderForm()" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md shadow-red-600/20 transition flex items-center gap-2">
+                                        <i class="fa-regular fa-floppy-disk"></i>
+                                        <span id="editor-save-btn-text">Update Order</span>
+                                    </button>
+                                </div>
+
+                                <!-- Customer & Order Details 2-Column Layout -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    
+                                    <!-- Left Column: Customer -->
+                                    <div class="space-y-4">
+                                        <h3 class="text-sm font-bold text-slate-800">Customer</h3>
+                                        
+                                        <div>
+                                            <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1.5">CUSTOMER *</label>
+                                            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/70">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-9 h-9 rounded-full bg-blue-100 text-[#1D4ED8] flex items-center justify-center font-bold text-xs">
+                                                        <i class="fa-regular fa-user"></i>
+                                                    </div>
+                                                    <div>
+                                                        <input type="text" id="form-cust-name" value="syedmubashar" class="bg-transparent font-bold text-sm text-slate-800 focus:outline-none focus:underline w-full">
+                                                        <div class="text-[11px] text-slate-400">ID: cust_1791284598943_963</div>
+                                                        <input type="text" id="form-cust-phone" value="+923217727200" class="bg-transparent text-xs font-medium text-slate-600 focus:outline-none w-full">
+                                                    </div>
+                                                </div>
+                                                <button type="button" onclick="showToast('Type directly in Customer Name or Phone to update!', 'info')" class="text-xs font-bold text-[#1D4ED8] hover:underline px-2">Change</button>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Customer email (optional)</label>
+                                            <input type="email" id="form-cust-email" value="customer@email.com" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#1D4ED8]">
+                                        </div>
+
+                                        <!-- Outstanding Balance Warning Box -->
+                                        <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs space-y-1">
+                                            <div class="font-bold text-amber-800 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                                                <span>This customer has an outstanding balance.</span>
+                                            </div>
+                                            <div class="text-slate-700">Pending amount: <strong class="text-[#E50914]">Rs 600.00</strong></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column: Order Details -->
+                                    <div class="space-y-4">
+                                        <h3 class="text-sm font-bold text-slate-800">Order Details</h3>
+                                        
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-600 mb-1">Assigned Designer</label>
+                                                <select id="form-designer" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none focus:border-[#1D4ED8]">
+                                                    <option value="Muhammad Ibrahim">Muhammad Ibrahim</option>
+                                                    <option value="Muhammad Abdullah Sa">Muhammad Abdullah Sa</option>
+                                                    <option value="Ali Raza (Sublimation)">Ali Raza (Sublimation)</option>
+                                                </select>
+                                                <button type="button" onclick="showToast('Secondary designer slot added', 'info')" class="text-[11px] font-bold text-[#E50914] mt-1 hover:underline">+ Add designer</button>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-600 mb-1">Delivery Date *</label>
+                                                <input type="date" id="form-delivery-date" value="2026-11-18" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none focus:border-[#1D4ED8]">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+                                            <select id="form-status" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#1D4ED8]">
+                                                <option value="Order Received">Order Received</option>
+                                                <option value="Designing">Designing</option>
+                                                <option value="Printing">Printing</option>
+                                                <option value="Ready">Ready</option>
+                                                <option value="Delivered">Delivered</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Remarks</label>
+                                            <textarea id="form-remarks" rows="2" placeholder="Add customization notes, gift wrap instructions..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#1D4ED8]"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Products / Items Section -->
+                                <div class="pt-4 border-t border-slate-100 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-sm font-bold text-slate-800">Products / Items</h3>
+                                        <button type="button" onclick="switchView('warehouse')" class="text-xs font-bold text-[#1D4ED8] hover:underline flex items-center gap-1">
+                                            <i class="fa-solid fa-cube"></i> Browse Catalog
+                                        </button>
+                                    </div>
+
+                                    <!-- Dynamic Item Rows Container -->
+                                    <div id="order-items-container" class="space-y-3">
+                                        <!-- Rows injected via JS -->
+                                    </div>
+
+                                    <button type="button" onclick="addOrderItemRow()" class="w-full py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-[#1D4ED8] text-xs font-bold text-slate-600 hover:text-[#1D4ED8] hover:bg-blue-50/40 transition flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Add more items</span>
+                                    </button>
+                                </div>
+
+                                <!-- Payment Summary Card (Matching Image 5) -->
+                                <div class="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50/60">
+                                    <div class="h-1 bg-[#E50914]"></div>
+                                    <div class="p-4 sm:p-5 space-y-4">
+                                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Payment summary</h4>
+                                        
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                                            <div>
+                                                <div class="text-[11px] font-bold text-slate-400 uppercase">ORDER TOTAL</div>
+                                                <div id="summary-order-total" class="text-xl font-extrabold text-[#E50914] mt-0.5">Rs 600.00</div>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Received at booking</label>
+                                                <input type="number" id="form-received-amount" value="0" min="0" oninput="recalculateOrderTotals()" class="w-full sm:w-40 px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                                            </div>
+
+                                            <div>
+                                                <div class="text-[11px] font-bold text-slate-400 uppercase">BALANCE DUE</div>
+                                                <div id="summary-balance-due" class="text-xl font-extrabold text-slate-900 mt-0.5">Rs 600.00</div>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-[11px] text-slate-400">Amount received now is stored on the order and added as paid when you create the invoice, so the remaining balance is clear.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Action Buttons -->
+                                <div class="flex items-center gap-3 pt-2">
+                                    <button onclick="saveOrderForm()" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                                        <i class="fa-regular fa-floppy-disk"></i>
+                                        <span>Update Order</span>
+                                    </button>
+                                    <button onclick="closeEditOrder()" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-100 transition">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================================= -->
+                <!-- VIEW 3: INVOICES MANAGEMENT (Matching Image 4)            -->
+                <!-- ========================================================= -->
+                <section id="view-invoices" class="view-section hidden space-y-6">
+                    
+                    <!-- Header & Create Button -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-extrabold text-[#0F4C81]">Invoices</h2>
+                            <p class="text-xs text-slate-500">Create, manage & share professional invoices with HY STORE customers</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="showToast('Select 2+ invoices of the same customer to combine.', 'info')" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-object-group text-[#1D4ED8]"></i>
+                                <span>Combine invoices</span>
+                            </button>
+                            <button onclick="openEditOrder(null)" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Create Invoice</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5 Top KPI Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase">TOTAL</div>
+                            <div class="text-xl font-extrabold text-[#0F4C81] mt-1">178</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase">PAID</div>
+                            <div id="inv-paid-count" class="text-xl font-extrabold text-emerald-600 mt-1">163</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase">PENDING</div>
+                            <div id="inv-pending-count" class="text-xl font-extrabold text-[#E50914] mt-1">15</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase">TOTAL VALUE</div>
+                            <div class="text-lg sm:text-xl font-extrabold text-[#E50914] mt-1">Rs 1,798,099.97</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs col-span-2 sm:col-span-1">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase">RECEIVABLE</div>
+                            <div id="inv-receivable-val" class="text-lg sm:text-xl font-extrabold text-[#E50914] mt-1">Rs 72,050.00</div>
+                            <div class="text-[10px] text-slate-400">Click for unpaid list</div>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs pl-2"></i>
+                        <input type="text" id="invoice-search" onkeyup="renderInvoicesGrid()" placeholder="Search by invoice number, order ID, or customer name..." class="w-full text-xs focus:outline-none">
+                    </div>
+
+                    <!-- Open Invoices Grid -->
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 mb-3">Open invoices (<span id="open-inv-header-count">6</span>)</h3>
+                        <div id="invoices-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================================= -->
+                <!-- VIEW 4: WAREHOUSE / PRODUCTS CATALOG (Images 3 & 6)       -->
+                <!-- ========================================================= -->
+                <section id="view-warehouse" class="view-section hidden space-y-6">
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <div>
+                            <h2 class="text-lg font-extrabold text-[#0F4C81]">Warehouse & Products Catalog</h2>
+                            <p class="text-xs text-slate-500">Manage customized gifts, printing materials & control live website visibility</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="product-search" onkeyup="renderProductsGrid()" placeholder="Search product..." class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-[#1D4ED8]">
+                            <button onclick="openProductModal(null)" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2 shrink-0">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add Product</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Catalog Grid -->
+                    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
+
+                <!-- ========================================================= -->
+                <!-- VIEW 5: COST CALCULATOR (Printing & Customized Gifts)     -->
+                <!-- ========================================================= -->
+                <section id="view-calculator" class="view-section hidden max-w-4xl mx-auto space-y-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div class="bg-gradient-to-r from-[#0F4C81] to-[#1D4ED8] p-5 text-white flex items-center justify-between">
+                            <div>
+                                <h2 class="text-lg font-extrabold">HY STORE Production Cost & Quotation Calculator</h2>
+                                <p class="text-xs text-blue-200">Calculate instant selling rates for Flex, Mugs, Photo Frames & Customized Gifts</p>
+                            </div>
+                            <i class="fa-solid fa-calculator text-2xl text-white/80"></i>
+                        </div>
+
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Item / Job Type</label>
+                                    <select id="calc-type" onchange="calculateProductionCost()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold">
+                                        <option value="unit">Customized Gift (Per Piece - Mug/Frame/Stamp)</option>
+                                        <option value="sqft">Banner / Flex / Vinyl (Width x Height in Ft)</option>
+                                    </select>
+                                </div>
+
+                                <div id="calc-dimensions-row" class="hidden grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Width (Feet)</label>
+                                        <input type="number" id="calc-width" value="4" min="1" oninput="calculateProductionCost()" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Height (Feet)</label>
+                                        <input type="number" id="calc-height" value="2" min="1" oninput="calculateProductionCost()" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
+                                        <input type="number" id="calc-qty" value="10" min="1" oninput="calculateProductionCost()" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Base Material Cost (Rs)</label>
+                                        <input type="number" id="calc-base-cost" value="220" min="0" oninput="calculateProductionCost()" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Printing / Sublimation (Rs)</label>
+                                        <input type="number" id="calc-print-cost" value="60" min="0" oninput="calculateProductionCost()" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Profit Margin (%)</label>
+                                        <input type="number" id="calc-margin" value="45" min="0" oninput="calculateProductionCost()" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Result Box -->
+                            <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-4">
+                                <div class="space-y-3">
+                                    <div class="text-xs font-bold uppercase text-slate-400">QUOTATION ESTIMATE</div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-500">Total Production Cost:</span>
+                                        <span id="calc-total-cost" class="font-bold text-slate-800">Rs 2,800.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-500">Estimated Profit:</span>
+                                        <span id="calc-profit" class="font-bold text-emerald-600">Rs 1,260.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-500">Per Unit Selling Rate:</span>
+                                        <span id="calc-unit-rate" class="font-bold text-[#1D4ED8]">Rs 406.00</span>
+                                    </div>
+                                    <div class="pt-3 border-t border-slate-200 flex justify-between items-center">
+                                        <span class="text-sm font-extrabold text-slate-800">Customer Quote Total:</span>
+                                        <span id="calc-final-total" class="text-2xl font-extrabold text-[#E50914]">Rs 4,060.00</span>
+                                    </div>
+                                </div>
+
+                                <button onclick="convertCalcToOrder()" class="w-full bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold py-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <span>Convert Quote to Order</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================================= -->
+                <!-- VIEW 6: CUSTOMERS & CRM DIRECTORY                         -->
+                <!-- ========================================================= -->
+                <section id="view-customers" class="view-section hidden space-y-5">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-extrabold text-[#0F4C81]">Customers & CRM</h2>
+                            <p class="text-xs text-slate-500">Track repeat buyers, WhatsApp contacts & pending khata balances</p>
+                        </div>
+                        <button onclick="showToast('New Customer Profile Form Ready', 'info')" class="bg-[#1D4ED8] hover:bg-[#0F4C81] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                            + Add Customer
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-[11px] font-bold uppercase text-slate-400 bg-slate-50/60">
+                                    <th class="py-3.5 px-5">Customer</th>
+                                    <th class="py-3.5 px-5">Phone / WhatsApp</th>
+                                    <th class="py-3.5 px-5">Total Orders</th>
+                                    <th class="py-3.5 px-5">Pending Balance</th>
+                                    <th class="py-3.5 px-5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table-body" class="divide-y divide-slate-100 text-xs">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- EDIT PRODUCT MODAL (Matching Image 6)                                 -->
+    <!-- ===================================================================== -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 id="prod-modal-title" class="text-base font-extrabold text-[#0F4C81]">Edit Product</h3>
+                    <p class="text-[11px] text-slate-400">Product photo + tracking. Quantity updates when a purchase is received.</p>
+                </div>
+                <button onclick="closeProductModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4 max-h-[78vh] overflow-y-auto">
+                <input type="hidden" id="edit-prod-id">
+
+                <!-- Catalog Photos Preview -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">Catalog photos (up to 5)</label>
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-16 h-16 rounded-xl border-2 border-[#E50914] bg-slate-50 flex items-center justify-center overflow-hidden">
+                            <i id="edit-prod-preview-icon" class="fa-solid fa-mug-hot text-2xl text-[#E50914]"></i>
+                            <span class="absolute bottom-0 inset-x-0 bg-[#1D4ED8] text-white text-[9px] font-bold text-center">Main</span>
+                        </div>
+                        <button type="button" onclick="showToast('Photo uploader ready (supports JPG, PNG, WebP)', 'info')" class="w-16 h-16 rounded-xl border border-dashed border-slate-300 hover:border-[#1D4ED8] flex flex-col items-center justify-center text-slate-400 hover:text-[#1D4ED8] transition">
+                            <i class="fa-regular fa-image text-base"></i>
+                            <span class="text-[10px] font-semibold mt-0.5">Add</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Show on Website Toggle Switch (Matching Image 6) -->
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div>
+                        <div class="text-xs font-bold text-slate-800">Show on website</div>
+                        <div class="text-[11px] text-slate-400">Off = hidden from HY STORE website. On = live for customers.</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-prod-show-web" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#E50914]"></div>
+                    </label>
+                </div>
+
+                <!-- Show on Top Toggle -->
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div>
+                        <div class="text-xs font-bold text-slate-800">Show on top of website products</div>
+                        <div class="text-[11px] text-slate-400">Pinned to the top of the Products page listing</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-prod-top-web" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1D4ED8]"></div>
+                    </label>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="space-y-3 pt-1">
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">BASIC INFORMATION</div>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Product name *</label>
+                        <input type="text" id="edit-prod-name" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Selling Price (Rs) *</label>
+                            <input type="number" id="edit-prod-price" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Stock On-Hand</label>
+                            <input type="number" id="edit-prod-stock" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+                            <select id="edit-prod-category" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700">
+                                <option value="Customized Mugs">Customized Mugs</option>
+                                <option value="Gift Boxes">Gift Boxes</option>
+                                <option value="Photo Frames">Photo Frames</option>
+                                <option value="Stamps">Stamps</option>
+                                <option value="Printing Material">Printing Material</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Material</label>
+                            <input type="text" id="edit-prod-material" value="Ceramic / Sublimation" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-700">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button onclick="closeProductModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200/70 transition">Cancel</button>
+                <button onclick="saveProductModal()" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
+    <!-- ===================================================================== -->
+    <script>
+        // --- 1. INITIAL MOCK DATABASE STATE ---
+        let ordersData = [
+            {
+                id: 'ORD-0322',
+                customer: 'syedmubashar',
+                phone: '+923217727200',
+                email: 'customer@email.com',
+                designer: 'Muhammad Abdullah Sa',
+                deliveryDate: '2026-11-18',
+                status: 'Order Received',
+                remarks: 'Urgent delivery needed',
+                received: 0,
+                items: [
+                    { name: 'FLEX CHINA', qty: 12, rate: 50, size: '4x2 ft', material: 'Canvas', notes: '' }
+                ]
+            },
+            {
+                id: 'ORD-0323',
+                customer: 'Dr. Salman Riaz Ahmed',
+                phone: '+923008612345',
+                email: 'salman.riaz@clinic.pk',
+                designer: 'Muhammad Ibrahim',
+                deliveryDate: '2026-11-16',
+                status: 'Printing',
+                remarks: 'Gift wrap in Red & Blue ribbon',
+                received: 2500,
+                items: [
+                    { name: 'Magic Mug (Red/Black)', qty: 10, rate: 650, size: '11 oz', material: 'Ceramic', notes: 'Clinic Logo' },
+                    { name: 'S-723 Pocket Stamp', qty: 2, rate: 500, size: 'Standard', material: 'PVC', notes: 'Blue Ink' }
+                ]
+            },
+            {
+                id: 'ORD-0324',
+                customer: 'Ayesha Tariq',
+                phone: '+923334455667',
+                email: 'ayesha.t@gmail.com',
+                designer: 'Muhammad Ibrahim',
+                deliveryDate: '2026-11-15',
+                status: 'Ready',
+                remarks: 'Birthday surprise box',
+                received: 1200,
+                items: [
+                    { name: 'Customized Flower Gift Box', qty: 1, rate: 1800, size: 'Medium', material: 'Acrylic + Paper', notes: 'Name: Zainab' }
+                ]
+            }
+        ];
+
+        let invoicesData = [
+            { id: 'INV-2026-8982', orderId: 'ORD-0321', customer: 'MOHSIN PLRA', date: '10 Nov 2026', total: 1400, balance: 1400, status: 'Unpaid' },
+            { id: 'INV-2026-2355', orderId: 'ORD-0323', customer: 'Dr. Salman Riaz Ahmed', date: '12 Nov 2026', total: 7500, balance: 5000, status: 'Partial' },
+            { id: 'INV-2026-1284', orderId: 'ORD-0314', customer: 'DR Rab Nawaz Gondal', date: '13 Nov 2026', total: 13000, balance: 13000, status: 'Unpaid' },
+            { id: 'INV-2026-5494', orderId: 'ORD-0291', customer: 'DR. WAQAS AHMED CH', date: '14 Nov 2026', total: 11000, balance: 11000, status: 'Unpaid' },
+            { id: 'INV-2026-4719', orderId: 'ORD-0288', customer: 'IRFAN AKRAM', date: '08 Nov 2026', total: 3500, balance: 3500, status: 'Unpaid' },
+            { id: 'INV-2026-0808', orderId: 'ORD-0320', customer: 'USMAN AHMED', date: '11 Nov 2026', total: 4200, balance: 2700, status: 'Partial' }
+        ];
+
+        let productsData = [
+            { id: 'PRD-01', name: 'Magic Mug (Red/Black Heat Reveal)', category: 'Customized Mugs', price: 650, oldPrice: 850, stock: 48, showOnWeb: true, topWeb: true, material: 'Ceramic', icon: 'fa-mug-hot', color: 'from-red-600 to-slate-900' },
+            { id: 'PRD-02', name: 'Customized Flower Gift Box', category: 'Gift Boxes', price: 1500, oldPrice: 1850, stock: 19, showOnWeb: true, topWeb: true, material: 'Premium Card', icon: 'fa-gift', color: 'from-pink-500 to-rose-600' },
+            { id: 'PRD-03', name: 'S-723 | POCKET STAMP', category: 'Stamps', price: 1100, oldPrice: 1300, stock: 35, showOnWeb: true, topWeb: false, material: 'PVC', icon: 'fa-stamp', color: 'from-blue-600 to-indigo-800' },
+            { id: 'PRD-04', name: 'A3 LED Customized Photo Frame', category: 'Photo Frames', price: 2200, oldPrice: 2600, stock: 12, showOnWeb: true, topWeb: false, material: 'Acrylic + Wood', icon: 'fa-image', color: 'from-amber-500 to-orange-600' },
+            { id: 'PRD-05', name: '3D Acrylic Sign Board', category: 'Printing Material', price: 5000, oldPrice: 6000, stock: 8, showOnWeb: false, topWeb: false, material: 'Acrylic + LED', icon: 'fa-sign-hanging', color: 'from-red-700 to-red-900' },
+            { id: 'PRD-06', name: 'A4 Sublimation Paper (100 Sheets)', category: 'Printing Material', price: 1200, oldPrice: 1450, stock: 24, showOnWeb: false, topWeb: false, material: 'Coated Paper', icon: 'fa-file-lines', color: 'from-sky-500 to-blue-700' }
+        ];
+
+        let editingOrderIndex = null;
+
+        // --- 2. INITIALIZATION ---
+        window.onload = function () {
+            // Set live date
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('current-date-display').textContent = new Date().toLocaleDateString('en-GB', options);
+
+            renderDashboardWidgets();
+            renderOrdersList();
+            renderInvoicesGrid();
+            renderProductsGrid();
+            renderCustomersTable();
+            calculateProductionCost();
+        };
+
+        // --- 3. NAVIGATION & SIDEBAR CONTROLS ---
+        function switchView(viewName) {
+            // Hide all sections
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            
+            // Show target section
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) target.classList.remove('hidden');
+
+            // Reset Order Editor sub-view if switching to orders
+            if (viewName === 'orders') {
+                document.getElementById('orders-list-container').classList.remove('hidden');
+                document.getElementById('order-editor-container').classList.add('hidden');
+            }
+
+            // Update Header Title
+            const titles = {
+                overview: 'Overview',
+                orders: 'Orders',
+                invoices: 'Invoices',
+                warehouse: 'Products & Warehouse',
+                calculator: 'Cost Calculator',
+                customers: 'Customers & CRM'
+            };
+            document.getElementById('header-page-title').textContent = titles[viewName] || 'Overview';
+
+            // Update Sidebar Active Pill (Royal Blue #1D4ED8)
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('bg-[#1D4ED8]', 'font-semibold', 'shadow-md', 'shadow-blue-950/30');
+                btn.classList.add('text-white/90', 'font-medium');
+            });
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-[#1D4ED8]', 'font-semibold', 'shadow-md', 'shadow-blue-950/30');
+                activeNav.classList.remove('font-medium');
+            }
+
+            // Close mobile sidebar if open
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+                toggleMobileSidebar();
+            }
+        }
+
+        function toggleSidebarWidth() {
+            const sidebar = document.getElementById('sidebar');
+            const texts = document.querySelectorAll('.sidebar-text');
+            const menuLabel = document.getElementById('menu-label');
+            const icon = document.getElementById('collapse-icon');
+
+            if (sidebar.classList.contains('w-64')) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+                texts.forEach(t => t.classList.add('hidden'));
+                menuLabel.classList.add('hidden');
+                icon.classList.replace('fa-chevron-left', 'fa-chevron-right');
+            } else {
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-64');
+                texts.forEach(t => t.classList.remove('hidden'));
+                menuLabel.classList.remove('hidden');
+                icon.classList.replace('fa-chevron-right', 'fa-chevron-left');
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobile-backdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        // --- 4. DASHBOARD WIDGETS RENDER ---
+        function renderDashboardWidgets() {
+            const pipelineEl = document.getElementById('dashboard-pipeline-list');
+            const attentionEl = document.getElementById('dashboard-attention-list');
+
+            pipelineEl.innerHTML = ordersData.map((ord, idx) => {
+                const total = ord.items.reduce((sum, i) => sum + (i.qty * i.rate), 0);
+                const statusColors = {
+                    'Order Received': 'bg-blue-50 text-[#1D4ED8]',
+                    'Designing': 'bg-purple-50 text-purple-700',
+                    'Printing': 'bg-amber-50 text-amber-700',
+                    'Ready': 'bg-emerald-50 text-emerald-700',
+                    'Delivered': 'bg-slate-100 text-slate-600'
+                };
+                return `
+                    <div onclick="openEditOrder(${idx})" class="cursor-pointer flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-[#1D4ED8] hover:bg-blue-50/20 transition">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-extrabold text-[#0F4C81]">${ord.id}</span>
+                                <span class="text-xs font-semibold text-slate-700">• ${ord.customer}</span>
+                            </div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">${ord.items.map(i => i.name).join(', ')}</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusColors[ord.status] || 'bg-slate-100'}">${ord.status}</span>
+                            <div class="text-xs font-bold text-slate-800 mt-1">Rs ${total.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const unpaid = invoicesData.filter(inv => inv.balance > 0).slice(0, 3);
+            attentionEl.innerHTML = unpaid.map(inv => `
+                <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-red-50/20">
+                    <div>
+                        <div class="text-xs font-extrabold text-slate-800">${inv.customer}</div>
+                        <div class="text-[11px] text-slate-400">${inv.id} • Due Balance</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-extrabold text-[#E50914]">Rs ${inv.balance.toLocaleString()}</span>
+                        <button onclick="markInvoicePaid('${inv.id}')" class="bg-[#1D4ED8] hover:bg-[#0F4C81] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition">Collect</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleGlobalSearch(e) {
+            if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                switchView('orders');
+                showToast(`Showing search results for "${e.target.value}"`, 'info');
+            }
+        }
+
+        // --- 5. ORDERS LIST & EDIT ORDER FORM LOGIC ---
+        function renderOrdersList() {
+            const filter = document.getElementById('order-status-filter').value;
+            const grid = document.getElementById('orders-grid');
+            
+            const filtered = filter === 'ALL' ? ordersData : ordersData.filter(o => o.status === filter);
+
+            grid.innerHTML = filtered.map((ord, idx) => {
+                const realIndex = ordersData.indexOf(ord);
+                const total = ord.items.reduce((sum, item) => sum + (item.qty * item.rate), 0);
+                const due = total - ord.received;
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:shadow-md hover:border-[#1D4ED8] transition flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold text-[#1D4ED8] tracking-wide">${ord.id}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-[#0F4C81]">${ord.status}</span>
+                            </div>
+                            <h3 class="text-sm font-extrabold text-slate-800 mt-2 flex items-center gap-1.5">
+                                <i class="fa-regular fa-user text-slate-400 text-xs"></i> ${ord.customer}
+                            </h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Delivery: ${ord.deliveryDate} • Designer: ${ord.designer}</p>
+                            
+                            <div class="mt-3 pt-3 border-t border-slate-100 space-y-1">
+                                ${ord.items.map(i => `
+                                    <div class="flex justify-between text-xs text-slate-600">
+                                        <span class="truncate pr-2">${i.qty}x ${i.name}</span>
+                                        <span class="font-semibold">Rs ${(i.qty * i.rate).toLocaleString()}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-slate-400">TOTAL / DUE</div>
+                                <div class="text-sm font-extrabold text-[#E50914]">Rs ${total.toLocaleString()} <span class="text-[11px] font-medium text-slate-500">(Due: Rs ${due})</span></div>
+                            </div>
+                            <button onclick="openEditOrder(${realIndex})" class="bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                <span>Edit</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openEditOrder(index) {
+            // Ensure Orders view is active
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-orders').classList.remove('hidden');
+            document.getElementById('orders-list-container').classList.add('hidden');
+            document.getElementById('order-editor-container').classList.remove('hidden');
+            document.getElementById('header-page-title').textContent = 'Orders';
+
+            editingOrderIndex = index;
+            const itemsContainer = document.getElementById('order-items-container');
+            itemsContainer.innerHTML = '';
+
+            if (index !== null && ordersData[index]) {
+                const ord = ordersData[index];
+                document.getElementById('editor-title').textContent = 'Edit Order';
+                document.getElementById('editor-order-id').textContent = ord.id;
+                document.getElementById('editor-save-btn-text').textContent = 'Update Order';
+                document.getElementById('form-cust-name').value = ord.customer;
+                document.getElementById('form-cust-phone').value = ord.phone;
+                document.getElementById('form-cust-email').value = ord.email;
+                document.getElementById('form-designer').value = ord.designer;
+                document.getElementById('form-delivery-date').value = ord.deliveryDate;
+                document.getElementById('form-status').value = ord.status;
+                document.getElementById('form-remarks').value = ord.remarks;
+                document.getElementById('form-received-amount').value = ord.received;
+
+                ord.items.forEach(item => addOrderItemRow(item));
+            } else {
+                // Creating brand new order
+                const nextNum = 325 + ordersData.length;
+                document.getElementById('editor-title').textContent = 'Create New Order';
+                document.getElementById('editor-order-id').textContent = `ORD-0${nextNum}`;
+                document.getElementById('editor-save-btn-text').textContent = 'Save Order';
+                document.getElementById('form-cust-name').value = 'Walk-in Customer';
+                document.getElementById('form-cust-phone').value = '+923000000000';
+                document.getElementById('form-cust-email').value = '';
+                document.getElementById('form-remarks').value = '';
+                document.getElementById('form-received-amount').value = 0;
+
+                addOrderItemRow({ name: 'Magic Mug (Red/Black)', qty: 1, rate: 650, size: '11 oz', material: 'Ceramic', notes: '' });
+            }
+
+            recalculateOrderTotals();
+        }
+
+        function closeEditOrder() {
+            document.getElementById('order-editor-container').classList.add('hidden');
+            document.getElementById('orders-list-container').classList.remove('hidden');
+        }
+
+        function addOrderItemRow(item = { name: '', qty: 1, rate: 500, size: '', material: '', notes: '' }) {
+            const container = document.getElementById('order-items-container');
+            const rowCount = container.children.length + 1;
+            
+            const row = document.createElement('div');
+            row.className = 'item-row p-4 rounded-xl border border-slate-200 bg-slate-50/40 space-y-3 relative';
+            row.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase text-slate-400">ITEM ${rowCount}</span>
+                    ${rowCount > 1 ? `<button type="button" onclick="this.closest('.item-row').remove(); recalculateOrderTotals();" class="text-xs text-[#E50914] hover:underline font-semibold"><i class="fa-solid fa-trash-can"></i> Remove</button>` : ''}
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    <div class="sm:col-span-5">
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Product * (type to search)</label>
+                        <input type="text" list="catalog-suggestions" value="${item.name}" placeholder="e.g. Magic Mug, Flex China" class="item-name w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Qty *</label>
+                        <input type="number" value="${item.qty}" min="1" oninput="recalculateOrderTotals()" class="item-qty w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Rate *</label>
+                        <input type="number" value="${item.rate}" min="0" oninput="recalculateOrderTotals()" class="item-rate w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#1D4ED8]">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Amount</label>
+                        <div class="item-amount px-3 py-2 rounded-xl bg-slate-100 text-xs font-extrabold text-slate-700">Rs ${(item.qty * item.rate).toFixed(2)}</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Size</label>
+                        <input type="text" value="${item.size}" placeholder="e.g. A4, 11oz, 4x2ft" class="item-size w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Material</label>
+                        <input type="text" value="${item.material}" placeholder="e.g. Ceramic, Canvas, PVC" class="item-material w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Notes</label>
+                        <input type="text" value="${item.notes}" placeholder="Custom text or color" class="item-notes w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs">
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+            recalculateOrderTotals();
+        }
+
+        function recalculateOrderTotals() {
+            let grandTotal = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+                const amt = qty * rate;
+                row.querySelector('.item-amount').textContent = `Rs ${amt.toFixed(2)}`;
+                grandTotal += amt;
+            });
+
+            const received = parseFloat(document.getElementById('form-received-amount').value) || 0;
+            const balanceDue = Math.max(0, grandTotal - received);
+
+            document.getElementById('summary-order-total').textContent = `Rs ${grandTotal.toFixed(2)}`;
+            document.getElementById('summary-balance-due').textContent = `Rs ${balanceDue.toFixed(2)}`;
+        }
+
+        function saveOrderForm() {
+            const items = [];
+            document.querySelectorAll('.item-row').forEach(row => {
+                items.push({
+                    name: row.querySelector('.item-name').value || 'Customized Item',
+                    qty: parseFloat(row.querySelector('.item-qty').value) || 1,
+                    rate: parseFloat(row.querySelector('.item-rate').value) || 0,
+                    size: row.querySelector('.item-size').value,
+                    material: row.querySelector('.item-material').value,
+                    notes: row.querySelector('.item-notes').value
+                });
+            });
+
+            const orderObj = {
+                id: document.getElementById('editor-order-id').textContent,
+                customer: document.getElementById('form-cust-name').value || 'Customer',
+                phone: document.getElementById('form-cust-phone').value,
+                email: document.getElementById('form-cust-email').value,
+                designer: document.getElementById('form-designer').value,
+                deliveryDate: document.getElementById('form-delivery-date').value,
+                status: document.getElementById('form-status').value,
+                remarks: document.getElementById('form-remarks').value,
+                received: parseFloat(document.getElementById('form-received-amount').value) || 0,
+                items: items
+            };
+
+            if (editingOrderIndex !== null) {
+                ordersData[editingOrderIndex] = orderObj;
+                showToast(`Order ${orderObj.id} updated successfully!`, 'success');
+            } else {
+                ordersData.unshift(orderObj);
+                document.getElementById('sidebar-orders-badge').textContent = 11 + ordersData.length - 3;
+                document.getElementById('summary-orders-count').textContent = 438 + ordersData.length - 3;
+                showToast(`New Order ${orderObj.id} created!`, 'success');
+            }
+
+            renderOrdersList();
+            renderDashboardWidgets();
+            closeEditOrder();
+        }
+
+        // --- 6. INVOICES MANAGEMENT LOGIC ---
+        function renderInvoicesGrid() {
+            const query = (document.getElementById('invoice-search').value || '').toLowerCase();
+            const grid = document.getElementById('invoices-grid');
+
+            const filtered = invoicesData.filter(inv => 
+                inv.id.toLowerCase().includes(query) || 
+                inv.customer.toLowerCase().includes(query) ||
+                inv.orderId.toLowerCase().includes(query)
+            );
+
+            document.getElementById('open-inv-header-count').textContent = filtered.filter(i => i.balance > 0).length;
+
+            grid.innerHTML = filtered.map(inv => {
+                const isPaid = inv.balance === 0;
+                const badgeClass = isPaid 
+                    ? 'bg-emerald-50 text-emerald-700' 
+                    : (inv.status === 'Partial' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-[#E50914]');
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase">INVOICE</div>
+                                    <div class="text-xs font-extrabold text-[#0F4C81]">${inv.id}</div>
+                                    <div class="text-[10px] text-slate-400">Ord: ${inv.orderId}</div>
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}">${isPaid ? 'Paid' : inv.status}</span>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="text-xs font-extrabold text-slate-800 truncate">${inv.customer}</div>
+                                <div class="text-[11px] text-slate-400">${inv.date}</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase">TOTAL</div>
+                                    <div class="text-xs font-extrabold text-slate-700">Rs ${inv.total.toLocaleString()}.00</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase">BALANCE</div>
+                                    <div class="text-xs font-extrabold ${isPaid ? 'text-emerald-600' : 'text-[#E50914]'}">Rs ${inv.balance.toLocaleString()}.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-1.5 pt-2">
+                            <button onclick="showToast('Viewing PDF Preview for ${inv.id}', 'info')" class="bg-[#E50914] hover:bg-[#B80710] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-regular fa-eye"></i> View
+                            </button>
+                            <button onclick="showToast('WhatsApp payment reminder sent to ${inv.customer}!', 'success')" class="p-1.5 rounded-lg border border-slate-200 text-emerald-600 hover:bg-emerald-50 transition" title="Send via WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                            </button>
+                            ${!isPaid ? `
+                                <button onclick="markInvoicePaid('${inv.id}')" class="bg-[#1D4ED8] hover:bg-[#0F4C81] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                    <i class="fa-solid fa-money-bill-wave"></i> Pay
+                                </button>
+                            ` : `<span class="text-[11px] font-bold text-emerald-600"><i class="fa-solid fa-check-double"></i> Cleared</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function markInvoicePaid(invId) {
+            const inv = invoicesData.find(i => i.id === invId);
+            if (inv && inv.balance > 0) {
+                inv.balance = 0;
+                inv.status = 'Paid';
+                showToast(`Payment received! ${invId} marked as PAID.`, 'success');
+                renderInvoicesGrid();
+                renderDashboardWidgets();
+            }
+        }
+
+        // --- 7. WAREHOUSE & PRODUCT MODAL LOGIC ---
+        function renderProductsGrid() {
+            const query = (document.getElementById('product-search').value || '').toLowerCase();
+            const grid = document.getElementById('products-grid');
+
+            const filtered = productsData.filter(p => 
+                p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query)
+            );
+
+            grid.innerHTML = filtered.map((prod, idx) => {
+                const realIdx = productsData.indexOf(prod);
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <!-- Visual Banner / Thumbnail -->
+                            <div class="relative h-36 bg-gradient-to-br ${prod.color} flex items-center justify-center text-white">
+                                <i class="fa-solid ${prod.icon} text-4xl opacity-90"></i>
+                                <span class="absolute top-2.5 right-2.5 bg-white/95 text-slate-800 text-[11px] font-extrabold px-2 py-0.5 rounded-lg shadow-xs">${prod.stock}</span>
+                                ${prod.topWeb ? `<span class="absolute top-2.5 left-2.5 bg-[#E50914] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">Top</span>` : ''}
+                            </div>
+
+                            <div class="p-4 space-y-2">
+                                <h3 class="text-xs font-extrabold text-slate-800 line-clamp-2 min-h-[2rem]">${prod.name}</h3>
+                                
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold">Product</span>
+                                    ${prod.showOnWeb 
+                                        ? `<span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold flex items-center gap-1"><i class="fa-solid fa-globe text-[9px]"></i> Web</span>`
+                                        : `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-semibold">Hidden</span>`
+                                    }
+                                </div>
+
+                                <div class="pt-1">
+                                    <span class="text-[11px] text-slate-400 line-through mr-1.5">Rs ${prod.oldPrice}</span>
+                                    <span class="text-sm font-extrabold text-[#E50914]">Rs ${prod.price.toLocaleString()}.00</span>
+                                </div>
+                                <div class="text-[11px] text-slate-400">On-hand: <strong class="text-slate-600">${prod.stock}</strong> units</div>
+                            </div>
+                        </div>
+
+                        <div class="px-4 pb-4 flex items-center gap-2">
+                            <button onclick="openProductModal(${realIdx})" class="flex-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#1D4ED8] text-slate-700 hover:text-[#1D4ED8] text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1.5">
+                                <i class="fa-regular fa-pen-to-square"></i> Edit
+                            </button>
+                            <button onclick="toggleProductWebVisibility(${realIdx})" class="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-600 transition" title="Toggle Website Visibility">
+                                <i class="fa-solid ${prod.showOnWeb ? 'fa-eye text-emerald-600' : 'fa-eye-slash text-slate-400'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleProductWebVisibility(idx) {
+            productsData[idx].showOnWeb = !productsData[idx].showOnWeb;
+            const stateText = productsData[idx].showOnWeb ? 'LIVE on HY STORE Website' : 'HIDDEN from Website';
+            showToast(`${productsData[idx].name} is now ${stateText}`, 'info');
+            renderProductsGrid();
+        }
+
+        function openProductModal(idx) {
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            if (idx !== null && productsData[idx]) {
+                const p = productsData[idx];
+                document.getElementById('prod-modal-title').textContent = 'Edit Product';
+                document.getElementById('edit-prod-id').value = idx;
+                document.getElementById('edit-prod-name').value = p.name;
+                document.getElementById('edit-prod-price').value = p.price;
+                document.getElementById('edit-prod-stock').value = p.stock;
+                document.getElementById('edit-prod-category').value = p.category;
+                document.getElementById('edit-prod-material').value = p.material;
+                document.getElementById('edit-prod-show-web').checked = p.showOnWeb;
+                document.getElementById('edit-prod-top-web').checked = p.topWeb;
+                document.getElementById('edit-prod-preview-icon').className = `fa-solid ${p.icon} text-2xl text-[#E50914]`;
+            } else {
+                document.getElementById('prod-modal-title').textContent = 'Add New Catalog Product';
+                document.getElementById('edit-prod-id').value = 'NEW';
+                document.getElementById('edit-prod-name').value = '';
+                document.getElementById('edit-prod-price').value = 750;
+                document.getElementById('edit-prod-stock').value = 25;
+                document.getElementById('edit-prod-show-web').checked = true;
+                document.getElementById('edit-prod-top-web').checked = false;
+            }
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveProductModal() {
+            const idVal = document.getElementById('edit-prod-id').value;
+            const name = document.getElementById('edit-prod-name').value || 'Customized Gift Item';
+            const price = parseFloat(document.getElementById('edit-prod-price').value) || 0;
+            const stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
+            const category = document.getElementById('edit-prod-category').value;
+            const material = document.getElementById('edit-prod-material').value;
+            const showOnWeb = document.getElementById('edit-prod-show-web').checked;
+            const topWeb = document.getElementById('edit-prod-top-web').checked;
+
+            if (idVal === 'NEW') {
+                productsData.unshift({
+                    id: `PRD-0${productsData.length + 1}`,
+                    name, category, price, oldPrice: Math.round(price * 1.2), stock,
+                    showOnWeb, topWeb, material, icon: 'fa-gift', color: 'from-[#E50914] to-[#0F4C81]'
+                });
+                showToast('New product added to Warehouse & synced!', 'success');
+            } else {
+                const idx = parseInt(idVal);
+                Object.assign(productsData[idx], { name, price, stock, category, material, showOnWeb, topWeb });
+                showToast('Product details & website visibility updated!', 'success');
+            }
+
+            renderProductsGrid();
+            closeProductModal();
+        }
+
+        // --- 8. COST CALCULATOR LOGIC ---
+        function calculateProductionCost() {
+            const type = document.getElementById('calc-type').value;
+            const dimRow = document.getElementById('calc-dimensions-row');
+            
+            let multiplier = 1;
+            if (type === 'sqft') {
+                dimRow.classList.remove('hidden');
+                const w = parseFloat(document.getElementById('calc-width').value) || 1;
+                const h = parseFloat(document.getElementById('calc-height').value) || 1;
+                multiplier = w * h;
+            } else {
+                dimRow.classList.add('hidden');
+            }
+
+            const qty = parseFloat(document.getElementById('calc-qty').value) || 1;
+            const baseCost = parseFloat(document.getElementById('calc-base-cost').value) || 0;
+            const printCost = parseFloat(document.getElementById('calc-print-cost').value) || 0;
+            const margin = parseFloat(document.getElementById('calc-margin').value) || 0;
+
+            const totalProdCost = (baseCost + printCost) * multiplier * qty;
+            const profit = totalProdCost * (margin / 100);
+            const finalTotal = totalProdCost + profit;
+            const unitRate = finalTotal / qty;
+
+            document.getElementById('calc-total-cost').textContent = `Rs ${totalProdCost.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('calc-profit').textContent = `Rs ${profit.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('calc-unit-rate').textContent = `Rs ${unitRate.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('calc-final-total').textContent = `Rs ${finalTotal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        }
+
+        function convertCalcToOrder() {
+            const qty = parseFloat(document.getElementById('calc-qty').value) || 1;
+            const unitRateText = document.getElementById('calc-unit-rate').textContent.replace('Rs ', '').replace(/,/g, '');
+            const rate = Math.round(parseFloat(unitRateText));
+
+            openEditOrder(null);
+            const firstRow = document.querySelector('.item-row');
+            if (firstRow) {
+                firstRow.querySelector('.item-name').value = 'Custom Quoted Job (HY Store)';
+                firstRow.querySelector('.item-qty').value = qty;
+                firstRow.querySelector('.item-rate').value = rate;
+                recalculateOrderTotals();
+            }
+            showToast('Quotation converted into draft Order!', 'success');
+        }
+
+        // --- 9. CUSTOMERS TABLE ---
+        function renderCustomersTable() {
+            const customers = [
+                { name: 'syedmubashar', phone: '+923217727200', orders: 14, balance: 600 },
+                { name: 'Dr. Salman Riaz Ahmed', phone: '+923008612345', orders: 9, balance: 5000 },
+                { name: 'Ayesha Tariq', phone: '+923334455667', orders: 6, balance: 0 },
+                { name: 'DR Rab Nawaz Gondal', phone: '+923215559988', orders: 22, balance: 13000 },
+                { name: 'MOHSIN PLRA', phone: '+923451122334', orders: 4, balance: 1400 }
+            ];
+
+            document.getElementById('customers-table-body').innerHTML = customers.map(c => `
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="py-3.5 px-5 font-bold text-slate-800">${c.name}</td>
+                    <td class="py-3.5 px-5 text-slate-600">${c.phone}</td>
+                    <td class="py-3.5 px-5 font-semibold text-[#1D4ED8]">${c.orders} Orders</td>
+                    <td class="py-3.5 px-5 font-extrabold ${c.balance > 0 ? 'text-[#E50914]' : 'text-emerald-600'}">Rs ${c.balance.toLocaleString()}.00</td>
+                    <td class="py-3.5 px-5 text-right">
+                        <button onclick="openEditOrder(null)" class="text-xs font-bold text-[#1D4ED8] hover:underline">+ New Order</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- 10. CUSTOM TOAST NOTIFICATION SYSTEM ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                info: 'bg-[#0F4C81] text-white',
+                error: 'bg-[#E50914] text-white'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                info: 'fa-circle-info',
+                error: 'fa-triangle-exclamation'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `${colors[type]} px-4 py-3 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2.5 pointer-events-auto transform transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type]} text-sm"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+    </script>
+
+    <!-- Datalist for Quick Product Autocomplete in Order Form -->
+    <datalist id="catalog-suggestions">
+        <option value="Magic Mug (Red/Black Heat Reveal)">
+        <option value="Customized Flower Gift Box">
+        <option value="S-723 | POCKET STAMP">
+        <option value="A3 LED Customized Photo Frame">
+        <option value="FLEX CHINA">
+        <option value="3D Acrylic Sign Board">
+    </datalist>
+
+</body>
+</html>
